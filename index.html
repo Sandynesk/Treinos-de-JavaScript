@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Treinos de Lógica de Programação</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+  <style type="text/tailwindcss">
+    @theme {
+      --color-clifford: #da373d;
+      --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 flex flex-col items-center justify-center font-sans bg-slate-50 text-slate-900">
+
+<nav class="w-full bg-clifford text-white p-8 text-center font-bold top-0 text-left text-2xl font-sans sticky">Treinos de Lógica de Programação</nav>
+
+
+  <div class="bg-white p-8 rounded-2xl shadow-xl max-w-2xl w-full mt-50">
+    <h1 class="text-clifford text-3xl font-bold mb-4 text-center">
+      Treinos de Lógica de Programação + Tailwind CSS
+    </h1>
+    
+    <p class="text-gray-600 mb-6 text-center">
+      O Tailwind v4 está ativo! A cor personalizada <span class="text-clifford font-mono">clifford</span> já pode ser usada em qualquer classe.
+    </p>
+
+    <div class="space-y-4">
+      <input 
+        id="inputLogica"
+        type="number" 
+        placeholder="Digite um número..." 
+        class="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-clifford outline-none transition-colors"
+      >
+      <button 
+        onclick="verificarParidade()"
+        class="w-full bg-clifford text-white font-bold py-3 rounded-lg hover:opacity-90 transition-opacity"
+      >
+        Verificar Par ou Ímpar
+      </button>
+      
+      <div id="resultado" class="text-center font-bold text-xl mt-4"></div>
+    </div>
+  </div>
+
+  <script>
+    function verificarParidade() {
+      const num = document.getElementById('inputLogica').value;
+      const display = document.getElementById('resultado');
+      
+      if(num === "") return;
+
+      if(num % 2 === 0) {
+        display.innerText = `O número ${num} é PAR! ✅`;
+        display.className = "text-green-600 mt-4";
+      } else {
+        display.innerText = `O número ${num} é ÍMPAR! ❌`;
+        display.className = "text-clifford mt-4";
+      }
+    }
+  </script>
+
+</body>
+</html>
