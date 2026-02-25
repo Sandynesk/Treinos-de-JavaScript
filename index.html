@@ -1,67 +1,284 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR" class="scroll-smooth">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Treinos de Lógica de Programação</title>
-
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-
-  <style type="text/tailwindcss">
-    @theme {
-      --color-clifford: #da373d;
-      --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Logic.dev — Portfólio</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    h1, h2, h3, h4 { font-family: 'Syne', sans-serif; }
+    
+    @keyframes glow-pulse { 
+      0%, 100% { box-shadow: 0 0 16px rgba(124, 58, 237, 0.3); }
+      50% { box-shadow: 0 0 32px rgba(124, 58, 237, 0.55); }
     }
+    @keyframes float { 
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    .glow-pulse { animation: glow-pulse 3s ease-in-out infinite; }
+    .float { animation: float 5s ease-in-out infinite; }
+    
+    .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s, transform 0.6s; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
   </style>
 </head>
-<body class="bg-gray-100 flex flex-col items-center justify-center font-sans bg-slate-50 text-slate-900">
+<body class="bg-zinc-950 text-white overflow-x-hidden">
 
-<nav class="w-full bg-clifford text-white p-8 text-center font-bold top-0 text-left text-2xl font-sans sticky">Treinos de Lógica de Programação</nav>
+<!-- Header -->
+<header class="fixed top-0 left-0 right-0 z-50 border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-md">
+  <nav class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+    <a href="#home" class="font-bold text-xl flex items-center gap-2">
+      <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-purple-600">
+        <i class="fa-solid fa-code text-sm"></i>
+      </span>
+      <span>Logic<span class="text-purple-400">.dev</span></span>
+    </a>
 
+    <ul id="nav-menu" class="hidden md:flex gap-8 text-sm">
+      <li><a href="#home" class="hover:text-purple-400 transition">Home</a></li>
+      <li><a href="#exercises" class="hover:text-purple-400 transition">Exercícios</a></li>
+    </ul>
 
-  <div class="bg-white p-8 rounded-2xl shadow-xl max-w-2xl w-full mt-50">
-    <h1 class="text-clifford text-3xl font-bold mb-4 text-center">
-      Treinos de Lógica de Programação + Tailwind CSS
-    </h1>
-    
-    <p class="text-gray-600 mb-6 text-center">
-      O Tailwind v4 está ativo! A cor personalizada <span class="text-clifford font-mono">clifford</span> já pode ser usada em qualquer classe.
-    </p>
-
-    <div class="space-y-4">
-      <input 
-        id="inputLogica"
-        type="number" 
-        placeholder="Digite um número..." 
-        class="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-clifford outline-none transition-colors"
-      >
-      <button 
-        onclick="verificarParidade()"
-        class="w-full bg-clifford text-white font-bold py-3 rounded-lg hover:opacity-90 transition-opacity"
-      >
-        Verificar Par ou Ímpar
+    <div class="flex gap-3 items-center">
+      <a href="https://github.com" target="_blank" class="hidden sm:flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-sm font-semibold transition">
+        <i class="fa-brands fa-github"></i> GitHub
+      </a>
+      <button id="menu-toggle" class="md:hidden p-2 hover:bg-zinc-800 rounded-lg transition">
+        <i class="fa-solid fa-bars"></i>
       </button>
-      
-      <div id="resultado" class="text-center font-bold text-xl mt-4"></div>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div id="mobile-menu" class="hidden md:hidden border-t border-zinc-800 bg-zinc-950 flex flex-col gap-2 p-4">
+    <a href="#home" class="py-2 hover:text-purple-400">Home</a>
+    <a href="#exercises" class="py-2 hover:text-purple-400">Exercícios</a>
+    <a href="https://github.com" target="_blank" class="py-2 px-4 rounded-lg bg-purple-600 text-center font-semibold mt-2">
+      <i class="fa-brands fa-github"></i> GitHub
+    </a>
+  </div>
+</header>
+
+<!-- Hero Section -->
+<section id="home" class="relative min-h-screen flex items-center pt-20">
+  <div class="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-purple-600/10 blur-3xl pointer-events-none"></div>
+  <div class="max-w-7xl mx-auto px-4 w-full grid md:grid-cols-2 gap-12 items-center py-24">
+    
+    <div class="reveal space-y-6">
+      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-purple-600/30 bg-purple-600/10 text-purple-300 text-xs font-semibold">
+        <span class="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse"></span>
+        Portfólio de Algoritmos
+      </div>
+
+      <h1 class="text-5xl md:text-6xl font-bold leading-tight">
+        Domine a <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Lógica</span> de Programação
+      </h1>
+
+      <p class="text-zinc-400 text-lg max-w-lg">
+        Exercícios resolvidos em JavaScript com explicações detalhadas e análise de complexidade.
+      </p>
+
+      <div class="flex flex-wrap gap-4 pt-4">
+        <!-- Botão para a página principal -->
+      <button id="btn-redirect" class="px-6 py-3 rounded-lg bg-purple-600 hover:bg-purple-700 font-semibold transition glow-pulse flex items-center gap-2 text-white">
+        <i class="fa-solid fa-arrow-right"></i> Ver Exercício
+      </button>
+
+      <!-- Lógica de Redirecionamento (Adicionar no final do arquivo HTML) -->
+      <script>
+        // Redirecionamento via JavaScript ao invés da tag <a>
+        document.getElementById('btn-redirect').addEventListener('click', () => {
+          window.location.href = 'exercicios.html';
+        });
+      </script>
+        <a href="https://linkedin.com" target="_blank" class="px-6 py-3 rounded-lg border border-zinc-700 hover:border-purple-600 transition">
+          <i class="fa-brands fa-linkedin"></i> LinkedIn
+        </a>
+      </div>
+
+      <div class="flex gap-8 pt-6 border-t border-zinc-800">
+        <div>
+          <p class="text-3xl font-bold">12<span class="text-purple-400">+</span></p>
+          <p class="text-zinc-500 text-sm">Exercícios</p>
+        </div>
+        <div>
+          <p class="text-3xl font-bold">3<span class="text-purple-400"> níveis</span></p>
+          <p class="text-zinc-500 text-sm">Dificuldade</p>
+        </div>
+        <div>
+          <p class="text-3xl font-bold">100<span class="text-purple-400">%</span></p>
+          <p class="text-zinc-500 text-sm">Comentado</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Code Block -->
+    <div class="reveal float hidden md:block">
+      <div class="rounded-2xl border border-purple-600/30 bg-zinc-900 overflow-hidden">
+        <div class="flex items-center gap-2 px-4 py-3 border-b border-zinc-800 bg-zinc-950/50">
+          <span class="w-3 h-3 rounded-full bg-red-500"></span>
+          <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
+          <span class="w-3 h-3 rounded-full bg-green-500"></span>
+          <span class="text-xs text-zinc-500 ml-auto">logic.js</span>
+        </div>
+        <pre class="p-4 text-sm overflow-x-auto"><code><span style="color:#c084fc">function</span> <span style="color:#60a5fa">solveProblem</span>(<span style="color:#f1f5f9">data</span>) {
+  <span style="color:#52525b; font-style:italic">// Inicializa o mapa</span>
+  <span style="color:#c084fc">const</span> <span style="color:#f1f5f9">memo</span> <span style="color:#e879f9">=</span> <span style="color:#c084fc">new</span> <span style="color:#60a5fa">Map</span>();
+
+  <span style="color:#c084fc">if</span> (<span style="color:#e879f9">!</span>data) {
+    <span style="color:#c084fc">return</span> <span style="color:#34d399">'Nenhum dado'</span>;
+  }
+  <span style="color:#c084fc">return</span> data.<span style="color:#60a5fa">reduce</span>((<span style="color:#f1f5f9">a</span>, <span style="color:#f1f5f9">b</span>) <span style="color:#e879f9">=></span> a <span style="color:#e879f9">+</span> b, <span style="color:#fb923c">0</span>);
+}
+
+<span style="color:#f1f5f9">console</span>.<span style="color:#60a5fa">log</span>(<span style="color:#34d399">"Pronto!"</span>);</code></pre>
+      </div>
     </div>
   </div>
+</section>
 
-  <script>
-    function verificarParidade() {
-      const num = document.getElementById('inputLogica').value;
-      const display = document.getElementById('resultado');
-      
-      if(num === "") return;
+<!-- Exercises Section -->
+<section id="exercises" class="py-24 bg-zinc-950">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="reveal text-center mb-16">
+      <h2 class="text-4xl font-bold mb-4">Exercícios de Lógica</h2>
+      <p class="text-zinc-400 max-w-2xl mx-auto">Problemas práticos para aprimorar suas habilidades de programação.</p>
+    </div>
 
-      if(num % 2 === 0) {
-        display.innerText = `O número ${num} é PAR! ✅`;
-        display.className = "text-green-600 mt-4";
-      } else {
-        display.innerText = `O número ${num} é ÍMPAR! ❌`;
-        display.className = "text-clifford mt-4";
-      }
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Exercise Card Template -->
+      <div class="reveal group bg-zinc-900 border border-zinc-800 rounded-xl p-6 hover:border-purple-500 transition-all">
+        <div class="flex justify-between items-start mb-4">
+          <div class="w-10 h-10 rounded-lg bg-purple-600/20 text-purple-400 flex items-center justify-center">
+            <i class="fa-solid fa-infinity"></i>
+          </div>
+          <span class="text-xs font-semibold px-2 py-1 rounded bg-green-500/20 text-green-400">Fácil</span>
+        </div>
+        <h3 class="font-bold text-lg mb-2 group-hover:text-purple-400 transition">Fibonacci</h3>
+        <p class="text-zinc-400 text-sm mb-4">Gere a sequência de Fibonacci até n termos.</p>
+        <a href="#solution" class="text-purple-400 hover:text-purple-300 text-sm font-semibold flex items-center gap-2">
+          Ver Solução <i class="fa-solid fa-arrow-right text-xs"></i>
+        </a>
+      </div>
+
+      <div class="reveal group bg-zinc-900 border border-zinc-800 rounded-xl p-6 hover:border-purple-500 transition-all">
+        <div class="flex justify-between items-start mb-4">
+          <div class="w-10 h-10 rounded-lg bg-purple-600/20 text-purple-400 flex items-center justify-center">
+            <i class="fa-solid fa-arrow-right-arrow-left"></i>
+          </div>
+          <span class="text-xs font-semibold px-2 py-1 rounded bg-green-500/20 text-green-400">Fácil</span>
+        </div>
+        <h3 class="font-bold text-lg mb-2 group-hover:text-purple-400 transition">Palíndromo</h3>
+        <p class="text-zinc-400 text-sm mb-4">Verifique se uma string é um palíndromo.</p>
+        <a href="#solution" class="text-purple-400 hover:text-purple-300 text-sm font-semibold flex items-center gap-2">
+          Ver Solução <i class="fa-solid fa-arrow-right text-xs"></i>
+        </a>
+      </div>
+
+      <div class="reveal group bg-zinc-900 border border-zinc-800 rounded-xl p-6 hover:border-purple-500 transition-all">
+        <div class="flex justify-between items-start mb-4">
+          <div class="w-10 h-10 rounded-lg bg-purple-600/20 text-purple-400 flex items-center justify-center">
+            <i class="fa-solid fa-bolt"></i>
+          </div>
+          <span class="text-xs font-semibold px-2 py-1 rounded bg-green-500/20 text-green-400">Fácil</span>
+        </div>
+        <h3 class="font-bold text-lg mb-2 group-hover:text-purple-400 transition">FizzBuzz</h3>
+        <p class="text-zinc-400 text-sm mb-4">Implemente o clássico jogo FizzBuzz.</p>
+        <a href="#solution" class="text-purple-400 hover:text-purple-300 text-sm font-semibold flex items-center gap-2">
+          Ver Solução <i class="fa-solid fa-arrow-right text-xs"></i>
+        </a>
+      </div>
+
+      <div class="reveal group bg-zinc-900 border border-zinc-800 rounded-xl p-6 hover:border-purple-500 transition-all">
+        <div class="flex justify-between items-start mb-4">
+          <div class="w-10 h-10 rounded-lg bg-purple-600/20 text-purple-400 flex items-center justify-center">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </div>
+          <span class="text-xs font-semibold px-2 py-1 rounded bg-yellow-500/20 text-yellow-400">Médio</span>
+        </div>
+        <h3 class="font-bold text-lg mb-2 group-hover:text-purple-400 transition">Busca Binária</h3>
+        <p class="text-zinc-400 text-sm mb-4">Encontre um elemento em array ordenado.</p>
+        <a href="#solution" class="text-purple-400 hover:text-purple-300 text-sm font-semibold flex items-center gap-2">
+          Ver Solução <i class="fa-solid fa-arrow-right text-xs"></i>
+        </a>
+      </div>
+
+      <div class="reveal group bg-zinc-900 border border-zinc-800 rounded-xl p-6 hover:border-purple-500 transition-all">
+        <div class="flex justify-between items-start mb-4">
+          <div class="w-10 h-10 rounded-lg bg-purple-600/20 text-purple-400 flex items-center justify-center">
+            <i class="fa-solid fa-arrow-down-1-9"></i>
+          </div>
+          <span class="text-xs font-semibold px-2 py-1 rounded bg-yellow-500/20 text-yellow-400">Médio</span>
+        </div>
+        <h3 class="font-bold text-lg mb-2 group-hover:text-purple-400 transition">Bubble Sort</h3>
+        <p class="text-zinc-400 text-sm mb-4">Ordene um array com o algoritmo Bubble Sort.</p>
+        <a href="#solution" class="text-purple-400 hover:text-purple-300 text-sm font-semibold flex items-center gap-2">
+          Ver Solução <i class="fa-solid fa-arrow-right text-xs"></i>
+        </a>
+      </div>
+
+      <div class="reveal group bg-zinc-900 border border-zinc-800 rounded-xl p-6 hover:border-purple-500 transition-all">
+        <div class="flex justify-between items-start mb-4">
+          <div class="w-10 h-10 rounded-lg bg-purple-600/20 text-purple-400 flex items-center justify-center">
+            <i class="fa-solid fa-rotate"></i>
+          </div>
+          <span class="text-xs font-semibold px-2 py-1 rounded bg-red-500/20 text-red-400">Difícil</span>
+        </div>
+        <h3 class="font-bold text-lg mb-2 group-hover:text-purple-400 transition">Fatorial com Memoização</h3>
+        <p class="text-zinc-400 text-sm mb-4">Calcule fatorial de forma otimizada.</p>
+        <a href="#solution" class="text-purple-400 hover:text-purple-300 text-sm font-semibold flex items-center gap-2">
+          Ver Solução <i class="fa-solid fa-arrow-right text-xs"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="border-t border-zinc-800 bg-zinc-950 py-8">
+  <div class="max-w-7xl mx-auto px-4 text-center text-zinc-500 text-sm">
+    <p>&copy; 2024 Logic.dev. Feito com <i class="fa-solid fa-heart text-red-500"></i> para aprendizado.</p>
+  </div>
+</footer>
+
+<script>
+// Mobile Menu Toggle
+const menuToggle = document.getElementById('menu-toggle');
+const mobileMenu = document.getElementById('mobile-menu');
+
+menuToggle.addEventListener('click', () => {
+  mobileMenu.classList.toggle('hidden');
+});
+
+// Close menu when clicking a link
+document.querySelectorAll('#mobile-menu a').forEach(link => {
+  link.addEventListener('click', () => {
+    mobileMenu.classList.add('hidden');
+  });
+});
+
+// Scroll Reveal Animation
+const reveals = document.querySelectorAll('.reveal');
+function check() {
+  reveals.forEach(reveal => {
+    const windowHeight = window.innerHeight;
+    const elementTop = reveal.getBoundingClientRect().top;
+    const elementVisible = 150;
+    
+    if (elementTop < windowHeight - elementVisible) {
+      reveal.classList.add('visible');
     }
-  </script>
+  });
+}
 
+window.addEventListener('scroll', check);
+check();
+</script>
 </body>
 </html>
