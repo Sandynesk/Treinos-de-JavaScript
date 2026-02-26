@@ -7,6 +7,9 @@
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 1. EXERCISE DATA
+// - Fazer um "banco de dicas" para cada exercício
+// - Fazer um "banco de soluções" para cada exercício
+//  
 // ─────────────────────────────────────────────────────────────────────────────
 
 const EXERCISES = [
@@ -33,6 +36,14 @@ const EXERCISES = [
             { args: [''], expected: '', label: 'Teste 3: string vazia' },
             { args: ['a'], expected: 'a', label: 'Teste 4: carácter único' },
         ],
+        hint: 'Tente percorrer a string de trás para frente, concatenando cada caractere em uma nova variável.',
+        solution: `function inverterString(str) {
+  let resultado = "";
+  for (let i = str.length - 1; i >= 0; i--) {
+    resultado += str[i];
+  }
+  return resultado;
+}`,
         starter:
             `function inverterString(str) {
   // Seu código aqui
@@ -64,8 +75,13 @@ console.log(inverterString("hello")); // "olleh"`,
             { args: ['listen', 'silent'], expected: true, label: 'Teste 1: "listen" / "silent"' },
             { args: ['hello', 'world'], expected: false, label: 'Teste 2: "hello" / "world"' },
             { args: ['Astronomer', 'Moon starer'], expected: true, label: 'Teste 3: ignora espaços' },
-            { args: ['rat', 'car'], expected: true, label: 'Teste 4: "rat" / "car"' },
+            { args: ['rat', 'car'], expected: false, label: 'Teste 4: "rat" / "car"' },
         ],
+        hint: 'Remova os espaços, converta para minúsculo, ordene os caracteres e compare as duas strings resultantes.',
+        solution: `function isAnagram(a, b) {
+  const format = (str) => str.replace(/\\s+/g, "").toLowerCase().split("").sort().join("");
+  return format(a) === format(b);
+}`,
         starter:
             `function isAnagram(a, b) {
   // Seu código aqui
@@ -105,6 +121,47 @@ console.log(isAnagram("listen", "silent")); // true`,
                 label: 'Teste 1: A → C peso 3',
             },
         ],
+        hint: 'Use um objeto para rastrear as distâncias mínimas de cada nó a partir do início e outro para rastrear os nós anteriores.',
+        solution: `function dijkstra(graph, start, end) {
+  const distances = {};
+  const previous = {};
+  const nodes = new Set();
+
+  for (let node in graph) {
+    distances[node] = node === start ? 0 : Infinity;
+    nodes.add(node);
+  }
+
+  while (nodes.size > 0) {
+    let closestNode = null;
+    for (let node of nodes) {
+      if (closestNode === null || distances[node] < distances[closestNode]) {
+        closestNode = node;
+      }
+    }
+
+    if (distances[closestNode] === Infinity || closestNode === end) break;
+
+    nodes.delete(closestNode);
+
+    for (let neighbor of graph[closestNode]) {
+      let alt = distances[closestNode] + neighbor.weight;
+      if (alt < distances[neighbor.node]) {
+        distances[neighbor.node] = alt;
+        previous[neighbor.node] = closestNode;
+      }
+    }
+  }
+
+  const path = [];
+  let curr = end;
+  while (curr) {
+    path.unshift(curr);
+    curr = previous[curr];
+  }
+
+  return { distance: distances[end], path };
+}`,
         starter:
             `function dijkstra(graph, start, end) {
   // Seu código aqui
@@ -350,8 +407,9 @@ function initSolveButtons() {
 
 const MonacoManager = (() => {
     let editor = null;
+    let solutionEditor = null; // Second instance for the modal
     let isReady = false;
-    let pendingCode = null; // code set before Monaco finishes loading
+    let pendingCode = null;
 
     function init() {
         // AMD loader config — Monaco files come from CDN
@@ -360,33 +418,53 @@ const MonacoManager = (() => {
         });
 
         window.require(['vs/editor/editor.main'], () => {
+            // Main Editor
             const container = document.getElementById('monaco-editor-container');
-            if (!container) return;
+            if (container) {
+                editor = monaco.editor.create(container, {
+                    value: '',
+                    language: 'javascript',
+                    theme: 'vs-dark',
+                    fontSize: 13,
+                    lineHeight: 22,
+                    fontFamily: "'JetBrains Mono','Fira Code','Cascadia Code',monospace",
+                    fontLigatures: true,
+                    minimap: { enabled: false },
+                    scrollBeyondLastLine: false,
+                    automaticLayout: true,
+                    padding: { top: 16, bottom: 16 },
+                    renderLineHighlight: 'gutter',
+                    overviewRulerBorder: false,
+                    hideCursorInOverviewRuler: true,
+                    contextmenu: false,
+                    tabSize: 2,
+                });
 
-            editor = monaco.editor.create(container, {
-                value: '',
-                language: 'javascript',
-                theme: 'vs-dark',
-                fontSize: 13,
-                lineHeight: 22,
-                fontFamily: "'JetBrains Mono','Fira Code','Cascadia Code',monospace",
-                fontLigatures: true,
-                minimap: { enabled: false },
-                scrollBeyondLastLine: false,
-                automaticLayout: true,   // resizes with the flex container
-                padding: { top: 16, bottom: 16 },
-                renderLineHighlight: 'gutter',
-                overviewRulerBorder: false,
-                hideCursorInOverviewRuler: true,
-                contextmenu: false,
-                tabSize: 2,
-            });
+                // Ctrl+Enter shortcut → trigger the run button
+                editor.addCommand(
+                    monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
+                    () => document.getElementById('run-btn')?.click()
+                );
+            }
 
-            // Ctrl+Enter shortcut → trigger the run button
-            editor.addCommand(
-                monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
-                () => document.getElementById('run-btn')?.click()
-            );
+            // Solution Modal Editor (read-only)
+            const solutionContainer = document.getElementById('solution-monaco-container');
+            if (solutionContainer) {
+                solutionEditor = monaco.editor.create(solutionContainer, {
+                    value: '',
+                    language: 'javascript',
+                    theme: 'vs-dark',
+                    fontSize: 12,
+                    lineHeight: 20,
+                    readOnly: true,
+                    fontFamily: "'JetBrains Mono','Fira Code','Cascadia Code',monospace",
+                    minimap: { enabled: false },
+                    scrollBeyondLastLine: false,
+                    automaticLayout: true,
+                    padding: { top: 12, bottom: 12 },
+                    contextmenu: false,
+                });
+            }
 
             isReady = true;
 
@@ -408,11 +486,22 @@ const MonacoManager = (() => {
         }
     }
 
+    function setSolutionContent(code) {
+        if (solutionEditor && isReady) {
+            solutionEditor.setValue(code);
+            solutionEditor.setScrollPosition({ scrollTop: 0 });
+        }
+    }
+
     function getContent() {
         return editor?.getValue() ?? '';
     }
 
-    return { init, setContent, getContent };
+    function getSolutionContent() {
+        return solutionEditor?.getValue() ?? '';
+    }
+
+    return { init, setContent, setSolutionContent, getContent, getSolutionContent };
 })();
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -579,7 +668,163 @@ function initRunButton() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 14. INIT
+// 14. UTILITY BUTTONS — Hint and Solution
+// ─────────────────────────────────────────────────────────────────────────────
+
+function initUtilityButtons() {
+    const hintBtn = document.getElementById('hint-btn');
+    const solutionBtn = document.getElementById('solution-btn');
+
+    if (hintBtn) {
+        hintBtn.addEventListener('click', () => {
+            if (!currentExercise) return;
+            ConsoleRenderer.append('system', `\u{1F4A1} Dica: ${currentExercise.hint}`);
+        });
+    }
+
+    if (solutionBtn) {
+        solutionBtn.addEventListener('click', () => {
+            if (!currentExercise) return;
+            ModalManager.show('confirm-modal');
+        });
+    }
+
+    // Modal Events
+    document.getElementById('confirm-cancel-btn')?.addEventListener('click', () => ModalManager.hide());
+    document.getElementById('confirm-yes-btn')?.addEventListener('click', () => {
+        ModalManager.hide();
+        setTimeout(() => {
+            MonacoManager.setSolutionContent(currentExercise.solution);
+            ModalManager.show('solution-modal');
+        }, 150); // Faster transition
+    });
+
+    // Both "X" button and explicit close button if any
+    document.getElementById('close-modal-btn')?.addEventListener('click', () => ModalManager.hide());
+
+    // Close on overlay click
+    document.getElementById('modal-overlay')?.addEventListener('click', (e) => {
+        if (e.target.id === 'modal-overlay') {
+            ModalManager.hide();
+        }
+    });
+
+    // Global Escape key
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            ModalManager.hide();
+        }
+    });
+
+    document.getElementById('copy-solution-btn')?.addEventListener('click', () => {
+        const code = MonacoManager.getSolutionContent();
+
+        // Fallback for non-secure contexts (file://)
+        if (!navigator.clipboard) {
+            const textArea = document.createElement("textarea");
+            textArea.value = code;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showCopyFeedback();
+            } catch (err) {
+                console.error('Erro ao copiar:', err);
+            }
+            document.body.removeChild(textArea);
+            return;
+        }
+
+        navigator.clipboard.writeText(code).then(() => {
+            showCopyFeedback();
+        }).catch(err => {
+            console.error('Clipboard API fail:', err);
+        });
+    });
+
+    function showCopyFeedback() {
+        const btn = document.getElementById('copy-solution-btn');
+        if (!btn) return;
+        const originalContent = btn.innerHTML;
+        btn.innerHTML = `<i class="fa-solid fa-check text-[10px]"></i> Copiado!`;
+        btn.classList.add('bg-green-600/20', 'text-green-400', 'border-green-500/30');
+        setTimeout(() => {
+            btn.innerHTML = originalContent;
+            btn.classList.remove('bg-green-600/20', 'text-green-400', 'border-green-500/30');
+        }, 2000);
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 15. MODAL MANAGER
+// ─────────────────────────────────────────────────────────────────────────────
+
+const ModalManager = (() => {
+    let currentActive = null;
+    let hideTimeout = null;
+
+    function show(modalId) {
+        const overlay = document.getElementById('modal-overlay');
+        const modal = document.getElementById(modalId);
+        if (!overlay || !modal) return;
+
+        // Reset previous hide timeout if it exists
+        if (hideTimeout) {
+            clearTimeout(hideTimeout);
+            hideTimeout = null;
+        }
+
+        currentActive = modalId;
+
+        document.body.style.overflow = 'hidden';
+
+        modal.classList.remove('hidden');
+        overlay.classList.remove('pointer-events-none');
+        overlay.style.opacity = '1';
+
+        // Brief delay to ensure transition works
+        requestAnimationFrame(() => {
+            modal.style.opacity = '1';
+            modal.style.transform = 'scale(1)';
+        });
+    }
+
+    function hide() {
+        if (!currentActive) return;
+
+        const modalId = currentActive;
+        const overlay = document.getElementById('modal-overlay');
+        const modal = document.getElementById(modalId);
+
+        if (modal) {
+            modal.style.opacity = '0';
+            modal.style.transform = 'scale(0.95)';
+        }
+
+        overlay.style.opacity = '0';
+
+        // Clear existing hide timeout
+        if (hideTimeout) clearTimeout(hideTimeout);
+
+        hideTimeout = setTimeout(() => {
+            // Only finalize if no new modal was opened
+            if (currentActive === modalId) {
+                if (modal) modal.classList.add('hidden');
+                overlay.classList.add('pointer-events-none');
+                document.body.style.overflow = '';
+                currentActive = null;
+            } else {
+                if (modal) modal.classList.add('hidden');
+            }
+            hideTimeout = null;
+        }, 500);
+    }
+
+    return { show, hide };
+})();
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 16. INIT
 // ─────────────────────────────────────────────────────────────────────────────
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -587,6 +832,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initSearch();
     initSolveButtons();
     initRunButton();
+    initUtilityButtons();
 
     // Monaco editor — loads asynchronously from CDN
     // The AMD loader script must be present in exercicios.html
