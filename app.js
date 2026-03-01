@@ -177,6 +177,55 @@ const graph = {
 };
 console.log(dijkstra(graph, "A", "C"));`,
     },
+    {
+        id: 4,
+        title: 'Two Sum',
+        difficulty: 'Fácil',
+        difficultyKey: 'easy',
+        fnName: 'twoSum',
+        description:
+            'Dado um array de inteiros <code>nums</code> e um número inteiro <code>target</code>, retorne os índices dos dois números cuja soma seja igual ao <code>target</code>. Você pode assumir que cada entrada terá exatamente uma solução e não poderá usar o mesmo elemento duas vezes.',
+        constraints: [
+            '2 <= nums.length <= 10^4',
+            '-10^9 <= nums[i] <= 10^9',
+            '-10^9 <= target <= 10^9',
+            'Apenas uma solução válida existe.'
+        ],
+        examples: [
+            { input: 'twoSum([2,7,11,15], 9)', output: '[0, 1]' },
+            { input: 'twoSum([3,2,4], 6)', output: '[1, 2]' },
+            { input: 'twoSum([3,3], 6)', output: '[0, 1]' },
+        ],
+        testCases: [
+            { args: [[2, 7, 11, 15], 9], expected: [0, 1], label: 'Teste 1: [2,7,11,15], target 9 → [0,1]' },
+            { args: [[3, 2, 4], 6], expected: [1, 2], label: 'Teste 2: [3,2,4], target 6 → [1,2]' },
+            { args: [[3, 3], 6], expected: [0, 1], label: 'Teste 3: [3,3], target 6 → [0,1]' },
+        ],
+        hint: 'Tente usar um Map para armazenar o valor e seu índice enquanto percorre o array. Assim, você pode verificar se o complemento (target - nums[i]) já existe no Map.',
+        solution: `function twoSum(nums, target) {
+  const map = new Map();
+  for (let i = 0; i < nums.length; i++) {
+    const complement = target - nums[i];
+    if (map.has(complement)) {
+      return [map.get(complement), i];
+    }
+    map.set(nums[i], i);
+  }
+}`,
+        starter:
+            `/**
+ * @param {number[]} nums
+ * @param {number} target
+ * @return {number[]}
+ */
+function twoSum(nums, target) {
+  // Seu código aqui
+
+}
+
+// Teste
+console.log(twoSum([2, 7, 11, 15], 9)); // [0, 1]`,
+    },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
