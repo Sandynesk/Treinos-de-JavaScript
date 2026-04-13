@@ -1,0 +1,108 @@
+@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css");
+@import "tailwindcss";
+
+:root {
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-premium: cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 16px rgba(124, 58, 237, 0.3); }
+  50% { box-shadow: 0 0 32px rgba(124, 58, 237, 0.55); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.glow-pulse { animation: glow-pulse 3s ease-in-out infinite; }
+.float { animation: float 5s ease-in-out infinite; }
+
+/* Utilitários Premium - Glassmorphism e Texturas */
+.bg-noise {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+.glass {
+  background: rgba(24, 24, 27, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glass-panel {
+  background: linear-gradient(145deg, rgba(39, 39, 42, 0.5) 0%, rgba(24, 24, 27, 0.8) 100%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(168, 85, 247, 0.15);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+.glass-panel:hover {
+  border-color: rgba(168, 85, 247, 0.4);
+  box-shadow: 0 8px 32px 0 rgba(168, 85, 247, 0.15);
+}
+
+#console-output {
+  scrollbar-width: thin;
+  scrollbar-color: #3f3f46 transparent;
+}
+
+#console-output::-webkit-scrollbar { width: 4px; }
+#console-output::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 2px; }
+
+@keyframes detail-enter {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.modal-card {
+  transition:
+    opacity 500ms var(--ease-out-expo),
+    transform 500ms var(--ease-out-expo);
+}
+
+#transition-overlay {
+  transition: opacity 700ms var(--ease-in-out-premium);
+}
+
+#overlay-inner {
+  transition:
+    opacity 600ms var(--ease-out-expo),
+    transform 600ms var(--ease-out-expo);
+}
+
+/* Monaco editor container */
+#monaco-editor-container {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Dashboard fade-in + slide-up */
+@keyframes dash-fade-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-dash {
+  animation: dash-fade-in 0.6s var(--ease-out-expo) both;
+}
+
+.animate-dash-1 { animation-delay: 0ms; }
+.animate-dash-2 { animation-delay: 60ms; }
+.animate-dash-3 { animation-delay: 120ms; }
+.animate-dash-4 { animation-delay: 180ms; }
+.animate-dash-5 { animation-delay: 240ms; }
+
+/* Smooth scrollbar for dashboard */
+.dashboard-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #3f3f46 transparent;
+}
+
+.dashboard-scroll::-webkit-scrollbar { width: 6px; }
+.dashboard-scroll::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 3px; }
+.dashboard-scroll::-webkit-scrollbar-track { background: transparent; }

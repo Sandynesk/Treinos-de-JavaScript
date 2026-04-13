@@ -1,0 +1,1019 @@
+/* ==========================================================================
+   app.js — Logic.dev Exercise Platform
+   Author: Sandynesk
+   ========================================================================== */
+
+'use strict';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 1. EXERCISE DATA
+// - Fazer um "banco de dicas" para cada exercício
+// - Fazer um "banco de soluções" para cada exercício
+//  
+// ─────────────────────────────────────────────────────────────────────────────
+
+const EXERCISES = [
+    {
+        id: 1,
+        title: 'Inversão de String',
+        difficulty: 'Fácil',
+        difficultyKey: 'easy',
+        fnName: 'inverterString',          // Nome exato da função que o aluno deve definir
+        description:
+            'Crie uma função que recebe uma string e a retorna completamente invertida, sem usar métodos nativos como <code>.reverse()</code>.',
+        constraints: [
+            'Não utilize <code>.split().reverse().join()</code>.',
+            'A função deve ser pura — sem efeitos colaterais.',
+            'Considere strings com qualquer tipo de caractere.',
+        ],
+        examples: [
+            { input: 'inverterString("hello")', output: '"olleh"' },
+            { input: 'inverterString("JavaScript")', output: '"tpircSavaJ"' },
+        ],
+        testCases: [
+            { args: ['hello'], expected: 'olleh', label: 'Teste 1: "hello" → "olleh"' },
+            { args: ['JavaScript'], expected: 'tpircSavaJ', label: 'Teste 2: "JavaScript" → "tpircSavaJ"' },
+            { args: [''], expected: '', label: 'Teste 3: string vazia' },
+            { args: ['a'], expected: 'a', label: 'Teste 4: carácter único' },
+        ],
+        hint: 'Tente percorrer a string de trás para frente, concatenando cada caractere em uma nova variável.',
+        solution: `function inverterString(str) {
+  let resultado = "";
+  for (let i = str.length - 1; i >= 0; i--) {
+    resultado += str[i];
+  }
+  return resultado;
+}`,
+        starter:
+            `function inverterString(str) {
+  // Seu código aqui
+
+}
+
+// Teste
+console.log(inverterString("hello")); // "olleh"`,
+    },
+
+    {
+        id: 2,
+        title: 'Validador de Anagramas',
+        difficulty: 'Médio',
+        difficultyKey: 'medium',
+        fnName: 'isAnagram',
+        description:
+            'Verifique se duas palavras fornecidas são anagramas exatos uma da outra. A verificação deve ser case-insensitive e ignorar espaços extras.',
+        constraints: [
+            'A comparação deve ignorar maiúsculas/minúsculas.',
+            'Espaços em branco devem ser removidos antes da comparação.',
+            'Retorne um valor booleano.',
+        ],
+        examples: [
+            { input: 'isAnagram("listen", "silent")', output: 'true' },
+            { input: 'isAnagram("hello", "world")', output: 'false' },
+        ],
+        testCases: [
+            { args: ['listen', 'silent'], expected: true, label: 'Teste 1: "listen" / "silent"' },
+            { args: ['hello', 'world'], expected: false, label: 'Teste 2: "hello" / "world"' },
+            { args: ['Astronomer', 'Moon starer'], expected: true, label: 'Teste 3: ignora espaços' },
+            { args: ['rat', 'car'], expected: false, label: 'Teste 4: "rat" / "car"' },
+        ],
+        hint: 'Remova os espaços, converta para minúsculo, ordene os caracteres e compare as duas strings resultantes.',
+        solution: `function isAnagram(a, b) {
+  const format = (str) => str.replace(/\\s+/g, "").toLowerCase().split("").sort().join("");
+  return format(a) === format(b);
+}`,
+        starter:
+            `function isAnagram(a, b) {
+  // Seu código aqui
+
+}
+
+// Teste
+console.log(isAnagram("listen", "silent")); // true`,
+    },
+
+    {
+        id: 3,
+        title: 'Caminho mais curto (Dijkstra)',
+        difficulty: 'Difícil',
+        difficultyKey: 'hard',
+        fnName: 'dijkstra',
+        description:
+            'Implemente o algoritmo de Dijkstra para encontrar o caminho de menor custo entre dois nós em um grafo ponderado e não-direcionado.',
+        constraints: [
+            'O grafo é representado como lista de adjacência.',
+            'Todos os pesos de arestas são inteiros positivos.',
+            'Retorne tanto a distância mínima quanto o caminho percorrido.',
+        ],
+        examples: [
+            {
+                input: 'dijkstra(graph, "A", "C")',
+                output: '{ distance: 3, path: ["A","B","C"] }',
+            },
+        ],
+        testCases: [
+            {
+                args: [
+                    { A: [{ node: 'B', weight: 1 }], B: [{ node: 'A', weight: 1 }, { node: 'C', weight: 2 }], C: [{ node: 'B', weight: 2 }] },
+                    'A', 'C',
+                ],
+                expected: { distance: 3, path: ['A', 'B', 'C'] },
+                label: 'Teste 1: A → C peso 3',
+            },
+        ],
+        hint: 'Use um objeto para rastrear as distâncias mínimas de cada nó a partir do início e outro para rastrear os nós anteriores.',
+        solution: `function dijkstra(graph, start, end) {
+  const distances = {};
+  const previous = {};
+  const nodes = new Set();
+
+  for (let node in graph) {
+    distances[node] = node === start ? 0 : Infinity;
+    nodes.add(node);
+  }
+
+  while (nodes.size > 0) {
+    let closestNode = null;
+    for (let node of nodes) {
+      if (closestNode === null || distances[node] < distances[closestNode]) {
+        closestNode = node;
+      }
+    }
+
+    if (distances[closestNode] === Infinity || closestNode === end) break;
+
+    nodes.delete(closestNode);
+
+    for (let neighbor of graph[closestNode]) {
+      let alt = distances[closestNode] + neighbor.weight;
+      if (alt < distances[neighbor.node]) {
+        distances[neighbor.node] = alt;
+        previous[neighbor.node] = closestNode;
+      }
+    }
+  }
+
+  const path = [];
+  let curr = end;
+  while (curr) {
+    path.unshift(curr);
+    curr = previous[curr];
+  }
+
+  return { distance: distances[end], path };
+}`,
+        starter:
+            `function dijkstra(graph, start, end) {
+  // Seu código aqui
+  // graph = { A: [{node:"B",weight:1}], B: [{node:"A",weight:1},{node:"C",weight:2}], ... }
+
+}
+
+// Teste
+const graph = {
+  A: [{ node: "B", weight: 1 }],
+  B: [{ node: "A", weight: 1 }, { node: "C", weight: 2 }],
+  C: [{ node: "B", weight: 2 }],
+};
+console.log(dijkstra(graph, "A", "C"));`,
+    },
+    {
+        id: 4,
+        title: 'Two Sum',
+        difficulty: 'Fácil',
+        difficultyKey: 'easy',
+        fnName: 'twoSum',
+        description:
+            'Dado um array de inteiros <code>nums</code> e um número inteiro <code>target</code>, retorne os índices dos dois números cuja soma seja igual ao <code>target</code>. Você pode assumir que cada entrada terá exatamente uma solução e não poderá usar o mesmo elemento duas vezes.',
+        constraints: [
+            '2 <= nums.length <= 10^4',
+            '-10^9 <= nums[i] <= 10^9',
+            '-10^9 <= target <= 10^9',
+            'Apenas uma solução válida existe.'
+        ],
+        examples: [
+            { input: 'twoSum([2,7,11,15], 9)', output: '[0, 1]' },
+            { input: 'twoSum([3,2,4], 6)', output: '[1, 2]' },
+            { input: 'twoSum([3,3], 6)', output: '[0, 1]' },
+        ],
+        testCases: [
+            { args: [[2, 7, 11, 15], 9], expected: [0, 1], label: 'Teste 1: [2,7,11,15], target 9 → [0,1]' },
+            { args: [[3, 2, 4], 6], expected: [1, 2], label: 'Teste 2: [3,2,4], target 6 → [1,2]' },
+            { args: [[3, 3], 6], expected: [0, 1], label: 'Teste 3: [3,3], target 6 → [0,1]' },
+        ],
+        hint: 'Tente usar um Map para armazenar o valor e seu índice enquanto percorre o array. Assim, você pode verificar se o complemento (target - nums[i]) já existe no Map.',
+        solution: `function twoSum(nums, target) {
+  const map = new Map();
+  for (let i = 0; i < nums.length; i++) {
+    const complement = target - nums[i];
+    if (map.has(complement)) {
+      return [map.get(complement), i];
+    }
+    map.set(nums[i], i);
+  }
+}`,
+        starter:
+            `/**
+ * @param {number[]} nums
+ * @param {number} target
+ * @return {number[]}
+ */
+function twoSum(nums, target) {
+  // Seu código aqui
+
+}
+
+// Teste
+console.log(twoSum([2, 7, 11, 15], 9)); // [0, 1]`,
+    },
+    {
+        id: 5,
+        title: 'Palindrome Number',
+        difficulty: 'Fácil',
+        difficultyKey: 'easy',
+        fnName: 'isPalindrome',
+        description:
+            'Dado um número inteiro <code>x</code>, retorne <code>true</code> se <code>x</code> for um palíndromo e <code>false</code> caso contrário.<br><br>Um número é palíndromo quando lido da mesma forma da esquerda para a direita e da direita para a esquerda.',
+        constraints: [
+            '-2^31 <= x <= 2^31 - 1',
+            '<strong>Follow up:</strong> Você poderia resolvê-lo sem converter o número inteiro em uma string?'
+        ],
+        examples: [
+            { input: 'isPalindrome(121)', output: 'true' },
+            { input: 'isPalindrome(-121)', output: 'false' },
+            { input: 'isPalindrome(10)', output: 'false' },
+        ],
+        testCases: [
+            { args: [121], expected: true, label: 'Teste 1: x = 121' },
+            { args: [-121], expected: false, label: 'Teste 2: x = -121' },
+            { args: [10], expected: false, label: 'Teste 3: x = 10' },
+            { args: [1221], expected: true, label: 'Teste 4: x = 1221' }
+        ],
+        hint: 'Para transformar em string, você pode usar .toString() e inverter seus caracteres.',
+        solution: `var isPalindrome = function(x) {
+    let res = false;
+    let text = x.toString();
+    const listinvert = [];
+    
+    for (let i = text.length - 1; i >= 0; i--) {
+        listinvert.push(text[i]);
+    }
+
+    let textoInvertido = listinvert.join(''); 
+
+    if (text === textoInvertido) {
+        return true;
+    } else {
+        return false;
+    }
+};`,
+        starter:
+            `/**
+ * @param {number} x
+ * @return {boolean}
+ */
+var isPalindrome = function(x) {
+    // Seu código aqui
+    
+};
+
+// Teste
+console.log(isPalindrome(121)); // true`,
+    },
+    {
+        id: 6,
+        title: 'Roman to Integer',
+        difficulty: 'Fácil',
+        difficultyKey: 'easy',
+        fnName: 'romanToInt',
+        description:
+            'Dado um número romano <code>s</code>, converta-o para um número inteiro.<br><br>Os numerais romanos são representados por sete símbolos diferentes: I, V, X, L, C, D e M.',
+        constraints: [
+            '1 <= s.length <= 15',
+            '<code>s</code> contém apenas os caracteres (\'I\', \'V\', \'X\', \'L\', \'C\', \'D\', \'M\').',
+            'É garantido que <code>s</code> é um número romano válido no intervalo [1, 3999].'
+        ],
+        examples: [
+            { input: 'romanToInt("III")', output: '3' },
+            { input: 'romanToInt("LVIII")', output: '58' },
+            { input: 'romanToInt("MCMXCIV")', output: '1994' },
+        ],
+        testCases: [
+            { args: ['III'], expected: 3, label: 'Teste 1: s = "III"' },
+            { args: ['LVIII'], expected: 58, label: 'Teste 2: s = "LVIII"' },
+            { args: ['MCMXCIV'], expected: 1994, label: 'Teste 3: s = "MCMXCIV"' }
+        ],
+        hint: 'Os números romanos geralmente são escritos do maior para o menor. No entanto, se um caractere representar um valor menor que o caractere à sua direita, você deve subtraí-lo.',
+        solution: `var romanToInt = function(s) {
+    let result = 0;
+
+    const valorDe = (l) => {
+        if (l === "M") return 1000;
+        if (l === "D") return 500;
+        if (l === "C") return 100;
+        if (l === "L") return 50;
+        if (l === "X") return 10;
+        if (l === "V") return 5;
+        if (l === "I") return 1;
+        return 0;
+    };
+
+    for (let i = 0; i < s.length; i++) {
+        let atual = valorDe(s[i]);
+        let prox = valorDe(s[i+1]);
+       
+       if (atual < prox) {
+        result -= atual;
+       } else {
+        result += atual;
+       }
+    }
+
+    return result;
+};`,
+        starter:
+            `/**
+ * @param {string} s
+ * @return {number}
+ */
+var romanToInt = function(s) {
+    // Seu código aqui
+    
+};
+
+// Teste
+console.log(romanToInt("MCMXCIV")); // 1994`,
+    },
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 2. STATE
+// ─────────────────────────────────────────────────────────────────────────────
+
+let currentExercise = null;
+let isTransitioning = false;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 3. HELPERS
+// ─────────────────────────────────────────────────────────────────────────────
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const DIFFICULTY_STYLES = {
+    easy: { badge: 'bg-green-500/20 text-green-300 border border-green-500/30', label: 'Fácil' },
+    medium: { badge: 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30', label: 'Médio' },
+    hard: { badge: 'bg-red-500/20 text-red-300 border border-red-500/30', label: 'Difícil' },
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 4. OVERLAY — DOM REFERENCES (resolved after DOMContentLoaded)
+// ─────────────────────────────────────────────────────────────────────────────
+
+let overlay, overlayInner, overlayEyebrow, overlayTitle, overlayBadge;
+
+function resolveOverlayRefs() {
+    overlay = document.getElementById('transition-overlay');
+    overlayInner = document.getElementById('overlay-inner');
+    overlayEyebrow = document.getElementById('overlay-eyebrow');
+    overlayTitle = document.getElementById('overlay-title');
+    overlayBadge = document.getElementById('overlay-badge');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 5. THE CINEMATIC TRANSITION — async choreography
+//
+//    Timeline (total ≈ 3.7s):
+//    T+0ms    → Body locked, overlay begins fade-in (700ms)
+//    T+700ms  → Overlay opaque. Title + eyebrow slide up into view (600ms)
+//    T+1300ms → Title fully visible. "O Respiro" — hold for 1400ms
+//    T+2700ms → DOM updated silently. Title fades out (500ms)
+//    T+3200ms → Overlay begins fade-out (700ms). Detail view enters (fade)
+//    T+3900ms → Body unlocked. Transition complete.
+// ─────────────────────────────────────────────────────────────────────────────
+
+async function transitionToExercise(exercise) {
+    if (isTransitioning) return;
+    isTransitioning = true;
+
+    // ── Populate overlay content ───────────────────────────────────────────
+    const style = DIFFICULTY_STYLES[exercise.difficultyKey];
+    overlayEyebrow.textContent = 'Próximo desafio';
+    overlayTitle.textContent = exercise.title;
+    overlayBadge.className = `text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest ${style.badge}`;
+    overlayBadge.textContent = style.label;
+
+    // Reset inner position (in case of a second call)
+    overlayInner.style.opacity = '0';
+    overlayInner.style.transform = 'translateY(28px)';
+
+    // ── Step 1: Lock body, fade in overlay (700ms) ─────────────────────────
+    document.body.style.pointerEvents = 'none';
+    overlay.style.opacity = '1';
+    await sleep(750);
+
+    // ── Step 2: Slide title into view (600ms ease-out-expo) ───────────────
+    overlayInner.style.opacity = '1';
+    overlayInner.style.transform = 'translateY(0)';
+    await sleep(600 + 1400); // animation (600ms) + breath hold (1400ms)
+
+    // ── Step 3: Update DOM silently behind the overlay ────────────────────
+    renderDetail(exercise);
+    currentExercise = exercise;
+
+    // ── Step 4: Fade out title (500ms) ────────────────────────────────────
+    overlayInner.style.opacity = '0';
+    overlayInner.style.transform = 'translateY(-16px)';
+    await sleep(550);
+
+    // ── Step 5: Switch views while overlay is still opaque ────────────────
+    showView('detail-view');
+    await sleep(60); // one frame — let browser paint the detail view
+
+    // ── Step 6: Fade out overlay, reveal new view (700ms) ─────────────────
+    overlay.style.opacity = '0';
+    await sleep(750);
+
+    // ── Done ──────────────────────────────────────────────────────────────
+    document.body.style.pointerEvents = '';
+    isTransitioning = false;
+}
+
+// Back-to-list: simpler reverse overlay (no title needed)
+async function transitionToList() {
+    if (isTransitioning) return;
+    isTransitioning = true;
+
+    overlayInner.style.opacity = '0';
+    overlayInner.style.transform = 'translateY(28px)';
+    document.body.style.pointerEvents = 'none';
+
+    overlay.style.opacity = '1';
+    await sleep(600);
+
+    showView('list-view');
+    currentExercise = null;
+    await sleep(60);
+
+    overlay.style.opacity = '0';
+    await sleep(700);
+
+    document.body.style.pointerEvents = '';
+    isTransitioning = false;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 6. VIEW SWITCHER
+// ─────────────────────────────────────────────────────────────────────────────
+
+function showView(activeId) {
+    ['list-view', 'detail-view'].forEach((id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (id === activeId) {
+            el.classList.remove('hidden');
+        } else {
+            el.classList.add('hidden');
+        }
+    });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 7. RENDER EXERCISE DETAIL VIEW
+// ─────────────────────────────────────────────────────────────────────────────
+
+function renderDetail(exercise) {
+    const style = DIFFICULTY_STYLES[exercise.difficultyKey];
+
+    // Header
+    document.getElementById('detail-title').textContent = exercise.title;
+    const badge = document.getElementById('detail-badge');
+    badge.className = `text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest ${style.badge}`;
+    badge.textContent = style.label;
+
+    // Description
+    document.getElementById('detail-desc').innerHTML = exercise.description;
+
+    // Constraints
+    const ul = document.getElementById('detail-constraints');
+    ul.innerHTML = exercise.constraints
+        .map((c) => `<li class="flex items-start gap-2 text-zinc-400 text-sm">
+      <i class="fa-solid fa-circle-dot text-purple-500 text-[8px] mt-1.5 flex-shrink-0"></i>
+      <span>${c}</span>
+    </li>`)
+        .join('');
+
+    // Examples
+    const exDiv = document.getElementById('detail-examples');
+    exDiv.innerHTML = exercise.examples
+        .map((ex) => `
+      <div class="rounded-lg bg-zinc-900 border border-zinc-800 p-3 font-mono text-xs">
+        <div class="flex gap-3 mb-1">
+          <span class="text-zinc-500 select-none w-12 flex-shrink-0">input</span>
+          <span class="text-purple-300">${ex.input}</span>
+        </div>
+        <div class="flex gap-3">
+          <span class="text-zinc-500 select-none w-12 flex-shrink-0">output</span>
+          <span class="text-green-300">${ex.output}</span>
+        </div>
+      </div>`)
+        .join('');
+
+    // Monaco Editor — update content (replaces old textarea.value)
+    MonacoManager.setContent(exercise.starter);
+
+    // Clear previous console output for a fresh session
+    ConsoleRenderer.clear();
+}
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 8. SEARCH FILTER (list view)
+// ─────────────────────────────────────────────────────────────────────────────
+
+function initSearch() {
+    const searchInput = document.getElementById('search-input');
+    const cards = document.querySelectorAll('.exercise-card');
+    const emptyState = document.getElementById('empty-state');
+    if (!searchInput) return;
+
+    searchInput.addEventListener('input', (e) => {
+        const term = e.target.value.toLowerCase().trim();
+        let visible = 0;
+
+        cards.forEach((card) => {
+            const title = card.querySelector('h3').textContent.toLowerCase();
+            const match = title.includes(term);
+            card.classList.toggle('hidden', !match);
+            if (match) visible++;
+        });
+
+        emptyState.classList.toggle('hidden', visible > 0);
+        emptyState.classList.toggle('flex', visible === 0);
+    });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 9. BIND SOLVE BUTTONS
+// ─────────────────────────────────────────────────────────────────────────────
+
+function initSolveButtons() {
+    document.querySelectorAll('.btn-solve').forEach((btn) => {
+        btn.addEventListener('click', function () {
+            const id = parseInt(this.dataset.exerciseId, 10);
+            const exercise = EXERCISES.find((e) => e.id === id);
+            if (exercise) transitionToExercise(exercise);
+        });
+    });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 10. MONACO EDITOR MANAGER
+//     Lazy-loads Monaco from CDN and manages a single editor instance.
+//     Uses automaticLayout: true so it fills its flex container correctly.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const MonacoManager = (() => {
+    let editor = null;
+    let solutionEditor = null; // Second instance for the modal
+    let isReady = false;
+    let pendingCode = null;
+
+    function init() {
+        // AMD loader config — Monaco files come from CDN
+        window.require.config({
+            paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs' },
+        });
+
+        window.require(['vs/editor/editor.main'], () => {
+            // Main Editor
+            const container = document.getElementById('monaco-editor-container');
+            if (container) {
+                editor = monaco.editor.create(container, {
+                    value: '',
+                    language: 'javascript',
+                    theme: 'vs-dark',
+                    fontSize: 13,
+                    lineHeight: 22,
+                    fontFamily: "'JetBrains Mono','Fira Code','Cascadia Code',monospace",
+                    fontLigatures: true,
+                    minimap: { enabled: false },
+                    scrollBeyondLastLine: false,
+                    automaticLayout: true,
+                    padding: { top: 16, bottom: 16 },
+                    renderLineHighlight: 'gutter',
+                    overviewRulerBorder: false,
+                    hideCursorInOverviewRuler: true,
+                    contextmenu: false,
+                    tabSize: 2,
+                });
+
+                // Ctrl+Enter shortcut → trigger the run button
+                editor.addCommand(
+                    monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
+                    () => document.getElementById('run-btn')?.click()
+                );
+            }
+
+            // Solution Modal Editor (read-only)
+            const solutionContainer = document.getElementById('solution-monaco-container');
+            if (solutionContainer) {
+                solutionEditor = monaco.editor.create(solutionContainer, {
+                    value: '',
+                    language: 'javascript',
+                    theme: 'vs-dark',
+                    fontSize: 12,
+                    lineHeight: 20,
+                    readOnly: true,
+                    fontFamily: "'JetBrains Mono','Fira Code','Cascadia Code',monospace",
+                    minimap: { enabled: false },
+                    scrollBeyondLastLine: false,
+                    automaticLayout: true,
+                    padding: { top: 12, bottom: 12 },
+                    contextmenu: false,
+                });
+            }
+
+            isReady = true;
+
+            // Apply any content that was set before Monaco was ready
+            if (pendingCode !== null) {
+                editor.setValue(pendingCode);
+                pendingCode = null;
+            }
+        });
+    }
+
+    function setContent(code) {
+        if (editor && isReady) {
+            editor.setValue(code);
+            editor.setScrollPosition({ scrollTop: 0 });
+        } else {
+            // Monaco not ready yet — queue the content
+            pendingCode = code;
+        }
+    }
+
+    function setSolutionContent(code) {
+        if (solutionEditor && isReady) {
+            solutionEditor.setValue(code);
+            solutionEditor.setScrollPosition({ scrollTop: 0 });
+        }
+    }
+
+    function getContent() {
+        return editor?.getValue() ?? '';
+    }
+
+    function getSolutionContent() {
+        return solutionEditor?.getValue() ?? '';
+    }
+
+    return { init, setContent, setSolutionContent, getContent, getSolutionContent };
+})();
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 11. WORKER MANAGER
+//     Creates a fresh Web Worker for every execution run.
+//     Protects against infinite loops with a 2-second hard timeout.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const WorkerManager = (() => {
+    const TIMEOUT_MS = 2000; // kill worker after 2s of silence
+
+    /**
+     * Executes student code in a sandboxed worker.
+     * @param {{ code: string, fnName: string, testCases: Array }} payload
+     * @param {{ onConsole, onTestResult, onError, onDone }}         handlers
+     */
+    function execute(payload, { onConsole, onTestResult, onError, onDone }) {
+        // A fresh worker per run guarantees clean state — no leaked variables
+        // between executions even if the previous run crashed.
+        const worker = new Worker('executor.worker.js');
+        let killed = false;
+
+        // ── Timeout: protects against infinite loops ────────────────────────
+        // If the worker doesn't send 'done' within 2s, we terminate it hard.
+        const timeoutId = setTimeout(() => {
+            killed = true;
+            worker.terminate();
+            onError({
+                errorType: 'TimeoutError',
+                message: '\u23f1 Timeout: loop infinito ou c\u00f3digo muito lento detectado (limite: 2s).',
+            });
+            onDone();
+        }, TIMEOUT_MS);
+
+        worker.onmessage = ({ data }) => {
+            if (killed) return; // messages arriving after termination are discarded
+            switch (data.type) {
+                case 'console': onConsole(data); break;
+                case 'testResult': onTestResult(data); break;
+                case 'error': onError(data); break;
+                case 'done':
+                    clearTimeout(timeoutId);
+                    worker.terminate(); // clean up — we never reuse workers
+                    onDone();
+                    break;
+            }
+        };
+
+        worker.onerror = (ev) => {
+            if (killed) return;
+            clearTimeout(timeoutId);
+            worker.terminate();
+            onError({ errorType: 'RuntimeError', message: ev.message ?? 'Erro desconhecido no worker.' });
+            onDone();
+        };
+
+        worker.postMessage(payload);
+    }
+
+    return { execute };
+})();
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 12. CONSOLE RENDERER
+//     Appends styled lines to #console-output.
+//     auto-scrolls to the latest message.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const ConsoleRenderer = (() => {
+    // Tailwind colour classes per message type
+    const STYLES = {
+        log: 'text-zinc-200',
+        warn: 'text-yellow-300',
+        error: 'text-red-400',
+        info: 'text-blue-300',
+        debug: 'text-zinc-500',
+        system: 'text-purple-300',
+        testPass: 'text-green-400',
+        testFail: 'text-red-400',
+        runtimeError: 'text-red-500',
+    };
+
+    function output() { return document.getElementById('console-output'); }
+
+    function append(type, text) {
+        const container = output();
+        if (!container) return;
+
+        const line = document.createElement('div');
+        line.className = `${STYLES[type] ?? 'text-zinc-300'} leading-relaxed whitespace-pre-wrap break-all`;
+        line.textContent = text;
+        container.appendChild(line);
+
+        // Always scroll to the newest message
+        container.scrollTop = container.scrollHeight;
+    }
+
+    function clear() {
+        const container = output();
+        if (container) container.innerHTML = '';
+    }
+
+    return { append, clear };
+})();
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 13. RUN BUTTON — wires the Executar button to WorkerManager
+// ─────────────────────────────────────────────────────────────────────────────
+
+function initRunButton() {
+    const runBtn = document.getElementById('run-btn');
+    const clearBtn = document.getElementById('clear-console-btn');
+
+    if (clearBtn) {
+        clearBtn.addEventListener('click', () => ConsoleRenderer.clear());
+    }
+
+    if (!runBtn) return;
+
+    runBtn.addEventListener('click', () => {
+        if (!currentExercise) return;
+
+        const code = MonacoManager.getContent().trim();
+        if (!code) {
+            ConsoleRenderer.append('runtimeError', '\u26a0 Editor vazio. Escreva sua solu\u00e7\u00e3o antes de executar.');
+            return;
+        }
+
+        // ── UI: enter executing state ──────────────────────────────────────
+        runBtn.disabled = true;
+        runBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-[10px]"></i> Executando…`;
+        ConsoleRenderer.clear();
+        ConsoleRenderer.append('system',
+            `\u25ba Executando "${currentExercise.title}" — ${currentExercise.testCases?.length ?? 0} teste(s) agendado(s)`);
+
+        // ── Dispatch to Worker ─────────────────────────────────────────────
+        WorkerManager.execute(
+            { code, fnName: currentExercise.fnName, testCases: currentExercise.testCases ?? [] },
+            {
+                onConsole({ method, text }) {
+                    ConsoleRenderer.append(method, text);
+                },
+                onTestResult({ passed, label, received, expected, error }) {
+                    if (passed) {
+                        ConsoleRenderer.append('testPass', `\u2705 ${label}`);
+                    } else if (error) {
+                        ConsoleRenderer.append('testFail', `\u274c ${label} \u2014 Erro: ${error}`);
+                    } else {
+                        ConsoleRenderer.append('testFail',
+                            `\u274c ${label}\n   Esperado:  ${expected}\n   Recebido:  ${received}`);
+                    }
+                },
+                onError({ errorType, message }) {
+                    ConsoleRenderer.append('runtimeError', `\u2716 ${errorType ?? 'Error'}: ${message}`);
+                },
+                onDone() {
+                    // ── UI: restore idle state ─────────────────────────────
+                    runBtn.disabled = false;
+                    runBtn.innerHTML = `<i class="fa-solid fa-play text-[10px]"></i> Executar`;
+                },
+            }
+        );
+    });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 14. UTILITY BUTTONS — Hint and Solution
+// ─────────────────────────────────────────────────────────────────────────────
+
+function initUtilityButtons() {
+    const hintBtn = document.getElementById('hint-btn');
+    const solutionBtn = document.getElementById('solution-btn');
+
+    if (hintBtn) {
+        hintBtn.addEventListener('click', () => {
+            if (!currentExercise) return;
+            ConsoleRenderer.append('system', `\u{1F4A1} Dica: ${currentExercise.hint}`);
+        });
+    }
+
+    if (solutionBtn) {
+        solutionBtn.addEventListener('click', () => {
+            if (!currentExercise) return;
+            ModalManager.show('confirm-modal');
+        });
+    }
+
+    // Modal Events
+    document.getElementById('confirm-cancel-btn')?.addEventListener('click', () => ModalManager.hide());
+    document.getElementById('confirm-yes-btn')?.addEventListener('click', () => {
+        ModalManager.hide();
+        setTimeout(() => {
+            MonacoManager.setSolutionContent(currentExercise.solution);
+            ModalManager.show('solution-modal');
+        }, 150); // Faster transition
+    });
+
+    // Both "X" button and explicit close button if any
+    document.getElementById('close-modal-btn')?.addEventListener('click', () => ModalManager.hide());
+
+    // Close on overlay click
+    document.getElementById('modal-overlay')?.addEventListener('click', (e) => {
+        if (e.target.id === 'modal-overlay') {
+            ModalManager.hide();
+        }
+    });
+
+    // Global Escape key
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            ModalManager.hide();
+        }
+    });
+
+    document.getElementById('copy-solution-btn')?.addEventListener('click', () => {
+        const code = MonacoManager.getSolutionContent();
+
+        // Fallback for non-secure contexts (file://)
+        if (!navigator.clipboard) {
+            const textArea = document.createElement("textarea");
+            textArea.value = code;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showCopyFeedback();
+            } catch (err) {
+                console.error('Erro ao copiar:', err);
+            }
+            document.body.removeChild(textArea);
+            return;
+        }
+
+        navigator.clipboard.writeText(code).then(() => {
+            showCopyFeedback();
+        }).catch(err => {
+            console.error('Clipboard API fail:', err);
+        });
+    });
+
+    function showCopyFeedback() {
+        const btn = document.getElementById('copy-solution-btn');
+        if (!btn) return;
+        const originalContent = btn.innerHTML;
+        btn.innerHTML = `<i class="fa-solid fa-check text-[10px]"></i> Copiado!`;
+        btn.classList.add('bg-green-600/20', 'text-green-400', 'border-green-500/30');
+        setTimeout(() => {
+            btn.innerHTML = originalContent;
+            btn.classList.remove('bg-green-600/20', 'text-green-400', 'border-green-500/30');
+        }, 2000);
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 15. MODAL MANAGER
+// ─────────────────────────────────────────────────────────────────────────────
+
+const ModalManager = (() => {
+    let currentActive = null;
+    let hideTimeout = null;
+
+    function show(modalId) {
+        const overlay = document.getElementById('modal-overlay');
+        const modal = document.getElementById(modalId);
+        if (!overlay || !modal) return;
+
+        // Reset previous hide timeout if it exists
+        if (hideTimeout) {
+            clearTimeout(hideTimeout);
+            hideTimeout = null;
+        }
+
+        currentActive = modalId;
+
+        document.body.style.overflow = 'hidden';
+
+        modal.classList.remove('hidden');
+        overlay.classList.remove('pointer-events-none');
+        overlay.style.opacity = '1';
+
+        // Brief delay to ensure transition works
+        requestAnimationFrame(() => {
+            modal.style.opacity = '1';
+            modal.style.transform = 'scale(1)';
+        });
+    }
+
+    function hide() {
+        if (!currentActive) return;
+
+        const modalId = currentActive;
+        const overlay = document.getElementById('modal-overlay');
+        const modal = document.getElementById(modalId);
+
+        if (modal) {
+            modal.style.opacity = '0';
+            modal.style.transform = 'scale(0.95)';
+        }
+
+        overlay.style.opacity = '0';
+
+        // Clear existing hide timeout
+        if (hideTimeout) clearTimeout(hideTimeout);
+
+        hideTimeout = setTimeout(() => {
+            // Only finalize if no new modal was opened
+            if (currentActive === modalId) {
+                if (modal) modal.classList.add('hidden');
+                overlay.classList.add('pointer-events-none');
+                document.body.style.overflow = '';
+                currentActive = null;
+            } else {
+                if (modal) modal.classList.add('hidden');
+            }
+            hideTimeout = null;
+        }, 500);
+    }
+
+    return { show, hide };
+})();
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 16. INIT
+// ─────────────────────────────────────────────────────────────────────────────
+
+document.addEventListener('DOMContentLoaded', () => {
+    resolveOverlayRefs();
+    initSearch();
+    initSolveButtons();
+    initRunButton();
+    initUtilityButtons();
+
+    // Monaco editor — loads asynchronously from CDN
+    // The AMD loader script must be present in exercicios.html
+    if (window.require) {
+        MonacoManager.init();
+    }
+
+    // Back-to-portfolio (cross-doc)
+    document.getElementById('btn-back')?.addEventListener('click', () => {
+        window.location.href = 'index.html';
+    });
+
+    // Back-to-list (from detail view, same-page)
+    document.getElementById('btn-back-to-list')?.addEventListener('click', () => {
+        transitionToList();
+    });
+});

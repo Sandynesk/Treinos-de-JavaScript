@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npx next:*)",
+      "Bash(node_modules/.bin/next build:*)",
+      "Bash(node -e \"console.assert\\(false,''test''\\)\")",
+      "Bash(powershell -Command 'Rename-Item -Path \"\"Treinos-de-JavaScript\"\" -NewName \"\"logic-dev\"\"')",
+      "Bash(cmd /c 'ren \"\"Treinos-de-JavaScript\"\" \"\"logic-dev\"\"')",
+      "Bash(handle Treinos-de-JavaScript)",
+      "Bash(openfiles)",
+      "Bash(tasklist)",
+      "Bash(dir:*)"
+    ]
+  }
+}

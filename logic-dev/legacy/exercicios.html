@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Logic.dev — Plataforma de Exercícios</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <!-- Monaco Editor AMD loader: enables require(['vs/editor/editor.main'], ...) in app.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      font-family: 'Syne', sans-serif;
+    }
+
+    /* ── Cross-doc transition: soft fade (for btn-back → index.html) ── */
+    @view-transition {
+      navigation: auto;
+    }
+
+    ::view-transition-old(root) {
+      animation: fade-out-soft 350ms ease-in forwards;
+    }
+
+    ::view-transition-new(root) {
+      animation: fade-in-soft 400ms ease-out forwards;
+    }
+
+    @keyframes fade-out-soft {
+      to {
+        opacity: 0;
+      }
+    }
+
+    @keyframes fade-in-soft {
+      from {
+        opacity: 0;
+      }
+    }
+
+    /* ── Premium custom easing ── */
+    :root {
+      --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-in-out-premium: cubic-bezier(0.76, 0, 0.24, 1);
+    }
+
+    /* ── Overlay backdrop ── */
+    #transition-overlay,
+    #modal-overlay {
+      transition: opacity 700ms var(--ease-in-out-premium);
+    }
+
+    /* ── Modals ── */
+    .modal-card {
+      transition:
+        opacity 500ms var(--ease-out-expo),
+        transform 500ms var(--ease-out-expo);
+    }
+
+    /* ── Overlay inner content (title + badge) ── */
+    #overlay-inner {
+      transition:
+        opacity 600ms var(--ease-out-expo),
+        transform 600ms var(--ease-out-expo);
+    }
+
+
+    /* ── Monaco editor container — must be block with explicit height ── */
+    #monaco-editor-container {
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    /* ── Virtual console output ── */
+    #console-output {
+      scrollbar-width: thin;
+      scrollbar-color: #3f3f46 transparent;
+    }
+
+    #console-output::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    #console-output::-webkit-scrollbar-thumb {
+      background: #3f3f46;
+      border-radius: 2px;
+    }
+
+    /* ── Detail view fade-in after overlay reveals ── */
+    #detail-view {
+      animation: detail-enter 700ms var(--ease-out-expo) both;
+    }
+
+    @keyframes detail-enter {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body
+  class="bg-zinc-950 text-zinc-300 min-h-screen flex flex-col selection:bg-zinc-700 selection:text-white relative overflow-x-hidden">
+
+  <!-- Efeitos de Iluminação de Fundo (Glows) -->
+  <div class="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+    <!-- Topo Esquerda -->
+    <div
+      class="absolute -top-[10%] -left-[10%] w-[50vw] h-[50vw] rounded-full bg-purple-900/20 blur-[100px] opacity-60">
+    </div>
+    <!-- Meio Direita -->
+    <div class="absolute top-[40%] -right-[10%] w-[40vw] h-[40vw] rounded-full bg-blue-900/10 blur-[120px] opacity-50">
+    </div>
+    <!-- Fundo Esquerda -->
+    <div
+      class="absolute -bottom-[10%] left-[10%] w-[60vw] h-[40vw] rounded-full bg-zinc-800/30 blur-[100px] opacity-40">
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="border-b border-zinc-800/60 bg-zinc-950/70 backdrop-blur-xl sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+      <div class="font-bold text-xl flex items-center gap-2 text-white">
+        <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-purple-600">
+          <i class="fa-solid fa-code text-sm text-zinc-300"></i>
+        </span>
+        <span>Logic<span class="text-purple-400">.dev</span></span>
+      </div>
+
+      <!-- Botão de Voltar -->
+      <button id="btn-back"
+        class="text-zinc-400 hover:text-white transition-colors flex items-center gap-2 text-sm font-medium px-3 py-2 rounded-lg hover:bg-zinc-800/50">
+        <i class="fa-solid fa-arrow-left"></i> Voltar ao Portfólio
+      </button>
+    </div>
+  </header>
+
+  <!-- Conteúdo Principal -->
+  <main id="main-content" class="flex-grow w-full relative z-10">
+
+    <!-- ================================================================
+         VIEW 1: LISTA DE EXERCÍCIOS
+         ================================================================ -->
+    <div id="list-view" class="max-w-5xl mx-auto px-4 py-12">
+
+      <!-- Cabeçalho e Busca -->
+      <div class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+          <h1 class="text-3xl font-bold mb-2 text-white tracking-tight">Ambiente de Tarefas</h1>
+          <p class="text-zinc-400 text-sm">Selecione um exercício abaixo para iniciar a resolução.</p>
+        </div>
+        <div class="relative w-full md:w-80 shadow-lg shadow-black/20 rounded-lg">
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 text-sm"></i>
+          <input type="text" id="search-input" placeholder="Buscar exercício..."
+            class="w-full bg-zinc-900/60 backdrop-blur-md border border-zinc-700/50 rounded-lg py-2.5 pl-9 pr-4 text-sm text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition-all">
+        </div>
+      </div>
+
+      <!-- Lista de Exercícios -->
+      <div class="flex flex-col gap-4" id="exercise-list">
+
+        <!-- Card 1 -->
+        <div
+          class="exercise-card bg-zinc-900/50 backdrop-blur-xl border border-zinc-700/50 rounded-xl p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 hover:border-zinc-500 hover:bg-zinc-900/70 hover:shadow-2xl hover:shadow-purple-900/10 transition-all duration-300 group">
+          <div class="flex-grow">
+            <div class="flex items-center gap-3 mb-1.5">
+              <h3 class="font-bold text-lg text-zinc-100 group-hover:text-white transition-colors">Inversão de String
+              </h3>
+
+              <span
+                class="text-[10px] font-bold px-2 py-0.5 rounded bg-green-500/20 text-green-300 uppercase tracking-wider border border-green-500/30">Fácil</span>
+            </div>
+            <p class="text-zinc-400 text-sm leading-relaxed">Crie uma função que recebe uma string e a retorna
+              invertida, sem usar métodos nativos.</p>
+          </div>
+          <button
+            class="btn-solve w-full md:w-auto px-6 py-2.5 rounded-lg bg-zinc-100 text-zinc-950 hover:bg-white text-sm font-bold shadow-lg transition-all flex items-center justify-center gap-2"
+            data-exercise-id="1">
+            <span>Resolver</span> <i class="fa-solid fa-play text-xs"></i>
+          </button>
+        </div>
+
+        <!-- Card 2 -->
+        <div
+          class="exercise-card bg-zinc-900/50 backdrop-blur-xl border border-zinc-700/50 rounded-xl p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 hover:border-zinc-500 hover:bg-zinc-900/70 hover:shadow-2xl hover:shadow-purple-900/10 transition-all duration-300 group">
+          <div class="flex-grow">
+            <div class="flex items-center gap-3 mb-1.5">
+              <h3 class="font-bold text-lg text-zinc-100 group-hover:text-white transition-colors">Validador de
+                Anagramas</h3>
+              <span
+                class="text-[10px] font-bold px-2 py-0.5 rounded bg-yellow-500/20 text-yellow-300 uppercase tracking-wider border border-yellow-500/30">Médio</span>
+            </div>
+            <p class="text-zinc-400 text-sm leading-relaxed">Verifique se duas palavras fornecidas são anagramas exatos
+              uma da outra.</p>
+          </div>
+          <button
+            class="btn-solve w-full md:w-auto px-6 py-2.5 rounded-lg bg-zinc-100 text-zinc-950 hover:bg-white text-sm font-bold shadow-lg transition-all flex items-center justify-center gap-2"
+            data-exercise-id="2">
+            <span>Resolver</span> <i class="fa-solid fa-play text-xs"></i>
+          </button>
+        </div>
+
+        <!-- Card 3 -->
+        <div
+          class="exercise-card bg-zinc-900/50 backdrop-blur-xl border border-zinc-700/50 rounded-xl p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 hover:border-zinc-500 hover:bg-zinc-900/70 hover:shadow-2xl hover:shadow-purple-900/10 transition-all duration-300 group">
+          <div class="flex-grow">
+            <div class="flex items-center gap-3 mb-1.5">
+              <h3 class="font-bold text-lg text-zinc-100 group-hover:text-white transition-colors">Caminho mais curto
+                (Dijkstra)</h3>
+              <span
+                class="text-[10px] font-bold px-2 py-0.5 rounded bg-red-500/20 text-red-300 uppercase tracking-wider border border-red-500/30">Difícil</span>
+            </div>
+            <p class="text-zinc-400 text-sm leading-relaxed">Implemente o algoritmo de Dijkstra para encontrar o caminho
+              mais curto em um grafo ponderado.</p>
+          </div>
+          <button
+            class="btn-solve w-full md:w-auto px-6 py-2.5 rounded-lg bg-zinc-100 text-zinc-950 hover:bg-white text-sm font-bold shadow-lg transition-all flex items-center justify-center gap-2"
+            data-exercise-id="3">
+            <span>Resolver</span> <i class="fa-solid fa-play text-xs"></i>
+          </button>
+        </div>
+
+        <!-- Card 4: Two Sum -->
+        <div
+          class="exercise-card bg-zinc-900/50 backdrop-blur-xl border border-zinc-700/50 rounded-xl p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 hover:border-zinc-500 hover:bg-zinc-900/70 hover:shadow-2xl hover:shadow-purple-900/10 transition-all duration-300 group">
+          <div class="flex-grow">
+            <div class="flex items-center gap-3 mb-1.5">
+              <h3 class="font-bold text-lg text-zinc-100 group-hover:text-white transition-colors">Two Sum</h3>
+              <span
+                class="text-[10px] font-bold px-2 py-0.5 rounded bg-green-500/20 text-green-300 uppercase tracking-wider border border-green-500/30">Fácil</span>
+            </div>
+            <p class="text-zinc-400 text-sm leading-relaxed">Retorne os índices de dois números que somam o valor alvo.
+            </p>
+          </div>
+          <button
+            class="btn-solve w-full md:w-auto px-6 py-2.5 rounded-lg bg-zinc-100 text-zinc-950 hover:bg-white text-sm font-bold shadow-lg transition-all flex items-center justify-center gap-2"
+            data-exercise-id="4">
+            <span>Resolver</span> <i class="fa-solid fa-play text-xs"></i>
+          </button>
+        </div>
+
+        <!-- Card 5: Palindrome Number -->
+        <div
+          class="exercise-card bg-zinc-900/50 backdrop-blur-xl border border-zinc-700/50 rounded-xl p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 hover:border-zinc-500 hover:bg-zinc-900/70 hover:shadow-2xl hover:shadow-purple-900/10 transition-all duration-300 group">
+          <div class="flex-grow">
+            <div class="flex items-center gap-3 mb-1.5">
+              <h3 class="font-bold text-lg text-zinc-100 group-hover:text-white transition-colors">Palindrome Number
+              </h3>
+              <span
+                class="text-[10px] font-bold px-2 py-0.5 rounded bg-green-500/20 text-green-300 uppercase tracking-wider border border-green-500/30">Fácil</span>
+            </div>
+            <p class="text-zinc-400 text-sm leading-relaxed">Verifique se um número inteiro x é um palíndromo.</p>
+          </div>
+          <button
+            class="btn-solve w-full md:w-auto px-6 py-2.5 rounded-lg bg-zinc-100 text-zinc-950 hover:bg-white text-sm font-bold shadow-lg transition-all flex items-center justify-center gap-2"
+            data-exercise-id="5">
+            <span>Resolver</span> <i class="fa-solid fa-play text-xs"></i>
+          </button>
+        </div>
+
+        <!-- Card 6: Roman to Integer -->
+        <div
+          class="exercise-card bg-zinc-900/50 backdrop-blur-xl border border-zinc-700/50 rounded-xl p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 hover:border-zinc-500 hover:bg-zinc-900/70 hover:shadow-2xl hover:shadow-purple-900/10 transition-all duration-300 group">
+          <div class="flex-grow">
+            <div class="flex items-center gap-3 mb-1.5">
+              <h3 class="font-bold text-lg text-zinc-100 group-hover:text-white transition-colors">Roman to Integer</h3>
+              <span
+                class="text-[10px] font-bold px-2 py-0.5 rounded bg-green-500/20 text-green-300 uppercase tracking-wider border border-green-500/30">Fácil</span>
+            </div>
+            <p class="text-zinc-400 text-sm leading-relaxed">Converta um número romano para um número inteiro.</p>
+          </div>
+          <button
+            class="btn-solve w-full md:w-auto px-6 py-2.5 rounded-lg bg-zinc-100 text-zinc-950 hover:bg-white text-sm font-bold shadow-lg transition-all flex items-center justify-center gap-2"
+            data-exercise-id="6">
+            <span>Resolver</span> <i class="fa-solid fa-play text-xs"></i>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Empty State -->
+      <div id="empty-state" class="hidden flex-col items-center justify-center py-20 px-4 text-center">
+        <div
+          class="w-16 h-16 mb-5 rounded-full bg-zinc-800/50 flex items-center justify-center border border-zinc-700/50">
+          <i class="fa-solid fa-ghost text-2xl text-zinc-500"></i>
+        </div>
+        <h3 class="text-zinc-200 font-bold text-lg mb-1">Nenhum exercício encontrado</h3>
+        <p class="text-zinc-500 text-sm">Tente buscar por um termo diferente ou limpe o filtro.</p>
+      </div>
+    </div>
+
+    <!-- ================================================================
+         VIEW 2: DETALHE DO EXERCÍCIO
+         ================================================================ -->
+    <div id="detail-view" class="hidden max-w-7xl mx-auto px-4 py-10">
+
+      <!-- Top bar -->
+      <div class="flex items-center justify-between gap-4 mb-8">
+        <div class="flex items-center gap-4">
+          <button id="btn-back-to-list"
+            class="group flex items-center gap-2 text-zinc-500 hover:text-white transition-colors text-sm font-medium">
+            <i class="fa-solid fa-arrow-left transition-transform group-hover:-translate-x-1"></i>
+            Exercícios
+          </button>
+          <div class="h-4 w-px bg-zinc-800"></div>
+          <h2 id="detail-title" class="text-2xl font-bold text-white uppercase tracking-tight"></h2>
+          <span id="detail-badge"></span>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <button id="hint-btn"
+            class="px-4 py-2 rounded-lg border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 text-zinc-400 hover:text-white text-xs font-bold tracking-wide transition-all flex items-center gap-2">
+            <i class="fa-solid fa-lightbulb text-[10px] text-yellow-500/80"></i> Dica
+          </button>
+          <button id="solution-btn"
+            class="px-4 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-100 text-xs font-bold tracking-wide transition-all flex items-center gap-2 border border-zinc-700/50">
+            <i class="fa-solid fa-code text-[10px] text-purple-400"></i> Solucão
+          </button>
+        </div>
+      </div>
+
+      <!-- Split panel -->
+      <div class="grid lg:grid-cols-2 gap-6 h-[calc(100vh-220px)] min-h-[520px]">
+
+        <!-- LEFT: Instructions -->
+        <div class="flex flex-col gap-5 overflow-y-auto pr-1 scrollbar-none">
+
+          <!-- Description -->
+          <div class="bg-zinc-900/60 backdrop-blur-xl border border-zinc-800/60 rounded-2xl p-6">
+            <p class="text-xs font-semibold text-purple-400 uppercase tracking-widest mb-3">Descrição</p>
+            <p id="detail-desc" class="text-zinc-300 text-sm leading-relaxed"></p>
+          </div>
+
+          <!-- Constraints -->
+          <div class="bg-zinc-900/60 backdrop-blur-xl border border-zinc-800/60 rounded-2xl p-6">
+            <p class="text-xs font-semibold text-purple-400 uppercase tracking-widest mb-4">Restrições</p>
+            <ul id="detail-constraints" class="flex flex-col gap-3"></ul>
+          </div>
+
+          <!-- Examples -->
+          <div class="bg-zinc-900/60 backdrop-blur-xl border border-zinc-800/60 rounded-2xl p-6">
+            <p class="text-xs font-semibold text-purple-400 uppercase tracking-widest mb-4">Exemplos</p>
+            <div id="detail-examples" class="flex flex-col gap-3"></div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Monaco Editor + Console -->
+        <div
+          class="flex flex-col rounded-2xl overflow-hidden border border-zinc-800/60 bg-zinc-950 shadow-2xl shadow-black/40">
+
+          <!-- Editor chrome bar -->
+          <div class="flex items-center gap-2 px-4 py-3 border-b border-zinc-800 bg-zinc-900/80 flex-shrink-0">
+            <span class="w-3 h-3 rounded-full bg-red-500/80"></span>
+            <span class="w-3 h-3 rounded-full bg-yellow-500/80"></span>
+            <span class="w-3 h-3 rounded-full bg-green-500/80"></span>
+            <span class="text-xs text-zinc-500 ml-3 font-mono">solution.js</span>
+            <div class="ml-auto flex items-center gap-2">
+              <span class="text-[10px] text-zinc-600 font-mono">JavaScript</span>
+            </div>
+          </div>
+
+          <!-- Monaco Editor container: flex-1 fills available space -->
+          <div id="monaco-editor-container"></div>
+
+          <!-- Virtual Console Panel -->
+          <div class="flex-shrink-0 border-t border-zinc-800">
+            <!-- Console header -->
+            <div class="flex items-center justify-between px-4 py-2 bg-zinc-900/80">
+              <span class="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest flex items-center gap-2">
+                <i class="fa-solid fa-terminal text-purple-500/70"></i> Saída
+              </span>
+              <button id="clear-console-btn"
+                class="text-[10px] text-zinc-600 hover:text-zinc-400 transition-colors font-mono tracking-wide">
+                limpar
+              </button>
+            </div>
+            <!-- Console output: shows logs, test results, errors -->
+            <div id="console-output"
+              class="h-36 overflow-y-auto bg-[#0a0a0d] px-4 py-3 font-mono text-xs leading-relaxed">
+            </div>
+          </div>
+
+          <!-- Editor footer with Run button -->
+          <div
+            class="flex items-center justify-between px-4 py-3 border-t border-zinc-800 bg-zinc-900/80 flex-shrink-0">
+            <span class="text-[10px] text-zinc-600 font-mono">Ctrl + Enter para executar</span>
+            <button id="run-btn"
+              class="px-5 py-2 rounded-lg bg-purple-600 hover:bg-purple-500 disabled:opacity-60 disabled:cursor-not-allowed text-white text-xs font-bold tracking-wide transition-all flex items-center gap-2 shadow-lg shadow-purple-900/30">
+              <i class="fa-solid fa-play text-[10px]"></i> Executar
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Transition Overlay: cinematic premium glass panel -->
+  <div id="transition-overlay"
+    class="fixed inset-0 z-[100] flex flex-col items-center justify-center pointer-events-none"
+    style="opacity: 0; background: rgba(7, 7, 10, 0.96); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);">
+
+    <!-- Decorative top line -->
+    <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500/40 to-transparent">
+    </div>
+
+    <!-- Content -->
+    <div id="overlay-inner" style="opacity: 0; transform: translateY(28px);" class="text-center px-8 max-w-xl">
+      <p id="overlay-eyebrow" class="text-xs font-semibold text-purple-400 uppercase tracking-[0.3em] mb-5"></p>
+      <h2 id="overlay-title" class="text-4xl md:text-5xl font-bold text-white leading-tight mb-5"></h2>
+      <span id="overlay-badge"></span>
+    </div>
+
+    <!-- Decorative bottom line -->
+    <div
+      class="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500/40 to-transparent">
+    </div>
+  </div>
+
+  <!-- Modal Overlay -->
+  <div id="modal-overlay"
+    class="fixed inset-0 z-[150] flex items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-500">
+
+    <!-- Confirm Modal -->
+    <div id="confirm-modal"
+      class="modal-card hidden w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-3xl p-8 shadow-2xl transform scale-95 opacity-0">
+      <div class="flex flex-col items-center text-center">
+        <div
+          class="w-16 h-16 rounded-full bg-purple-500/10 flex items-center justify-center mb-6 border border-purple-500/20">
+          <i class="fa-solid fa-triangle-exclamation text-2xl text-purple-400"></i>
+        </div>
+        <h3 class="text-2xl font-bold text-white mb-2">Ver solução?</h3>
+        <p class="text-zinc-400 text-sm mb-8 leading-relaxed">
+          O aprendizado acontece quando você tenta resolver sozinho. Deseja ver a solução agora?
+        </p>
+        <div class="flex gap-3 w-full">
+          <button id="confirm-cancel-btn"
+            class="flex-1 py-3 rounded-xl border border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white font-bold text-sm transition-all">
+            Ainda não
+          </button>
+          <button id="confirm-yes-btn"
+            class="flex-1 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-sm transition-all shadow-lg shadow-purple-900/30">
+            Sim, mostrar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Solution Modal -->
+    <div id="solution-modal"
+      class="modal-card hidden w-full max-w-2xl bg-[#07070a]/90 backdrop-blur-2xl border border-zinc-800/50 rounded-3xl overflow-hidden shadow-3xl transform scale-95 opacity-0">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-zinc-800/50 bg-zinc-900/30">
+        <div class="flex items-center gap-3">
+          <i class="fa-solid fa-code text-purple-500"></i>
+          <span class="text-sm font-bold text-white uppercase tracking-widest">Solução de Referência</span>
+        </div>
+        <button id="close-modal-btn"
+          class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-zinc-800 text-zinc-400 hover:text-white transition-all">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+      <div class="p-6">
+        <div class="rounded-2xl overflow-hidden border border-zinc-800/50">
+          <div id="solution-monaco-container" style="height: 350px;"></div>
+        </div>
+        <div class="mt-6 flex items-center justify-between">
+          <p class="text-xs text-zinc-500 font-medium">Use esta solução como referência para seus estudos.</p>
+          <button id="copy-solution-btn"
+            class="px-4 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white text-xs font-bold transition-all flex items-center gap-2">
+            <i class="fa-solid fa-copy text-[10px]"></i> Copiar Código
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- Footer -->
+  <footer class="border-t border-zinc-800/50 bg-zinc-950/40 backdrop-blur-md py-6 mt-auto relative z-10">
+    <div class="max-w-7xl mx-auto px-4 text-center text-zinc-600 text-xs font-medium">
+      <p>&copy; 2026 Logic.dev. Plataforma de testes.</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+
+</html>
